@@ -32,16 +32,44 @@ solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, do
 
 double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
 {
-	try
-	{
-		double* p = new double[2]{ 0,0 };
-		//Tu wpisz kod funkcji
+	try {
+			double *p = new double[2]{0, 0};
+			// Tu wpisz kod funkcji
+			int i = 0;
+			double x1 = x0 + d;
+			if (ff(x1, 0, 0) == ff(x0, 0, 0)) {
+					p[0] = x0;
+					p[1] = x1;
+					return p;
+			}
+			if (ff(x1, 0, 0) > ff(x0, 0, 0)) {
+					d = -d;
+					x1 = x0 + d;
+					if (ff(x1, 0, 0) >= ff(x0, 0, 0)) {
+							p[0] = x1;
+							p[1] = x0 - d;
+							return p;
+					}
+			}
+			double last = 0;
+			do {
+					if (i > Nmax)
+							throw;
+					i++;
+					last = x1;
+					x1 = x0 + pow(alpha, i) * d;
+			} while (ff(last, 0, 0) <= ff(x1, 0, 0));
+			if (d > 0) {
+					p[0] = x0 + pow(alpha, i - 2) * d;
+					p[1] = x1;
+					return p;
+			}
+			p[1] = x0 + pow(alpha, i - 2) * d;
+			p[0] = x1;
 
-		return p;
-	}
-	catch (string ex_info)
-	{
-		throw ("double* expansion(...):\n" + ex_info);
+			return p;
+	} catch (string ex_info) {
+			throw("double* expansion(...):\n" + ex_info);
 	}
 }
 
