@@ -68,6 +68,56 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		solution Xopt;
 		//Tu wpisz kod funkcji
 
+		int i = 0;
+		double d = 0;
+		double dOld = 0;
+
+		while (!(b - a < epsilon || abs(d - dOld) < gamma))
+		{
+			matrix l = ff();
+			matrix m = ff();
+
+			if (m <= 0)
+				throw;
+
+			d = 0.5 * l(0) / m(0);
+
+			if (a < d && d < c)
+			{
+				if (ff(d, NAN, NAN) < ff(c, NAN, NAN))
+				{
+
+				}
+				else
+				{
+
+				}
+			}
+			else
+			{
+				if (c < d && d < b)
+				{
+					if (f(d) < f(c))
+					{
+
+					}
+					else
+					{
+
+					}
+				}
+				else
+				{
+					throw;
+				}
+			}
+
+			i++;
+
+			if (i > Nmax)
+				throw;
+		}
+
 		return Xopt;
 	}
 	catch (string ex_info)
