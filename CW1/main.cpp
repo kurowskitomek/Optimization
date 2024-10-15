@@ -42,7 +42,8 @@ void lab0()
 	solution opt;
 	a(0) = -1;
 	a(1) = 2;
-	opt = MC(ff0T, 2, lb, ub, epsilon, Nmax, a);
+	opt = fib(lab1f, 2, lb, ub, epsilon, Nmax, a);
+
 	cout << opt << endl << endl;
 	solution::clear_calls();
 

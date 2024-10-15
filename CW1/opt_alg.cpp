@@ -73,15 +73,86 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 	}
 }
 
+//returns index of fib number greater than x
+double fibi(double x, double _prev = 0, double _curr = 0, double _index = 1)
+{
+    if(_curr > x)
+    {
+      return _index;
+    }
+    else {
+    if(_curr != 0)
+        return fibi(x, _curr, _prev+_curr, _index+1);
+    else {
+      return fibi(x, 0, 1, _index+1);
+    }
+    }
+}
+//returns fib number with index of index
+double fibo(double index, double _prev = 0, double _curr = 0)
+{
+  if(index  == 1)
+  {
+    return _curr;
+  }
+  else {
+    if(_curr == 0)
+      return fibo(index - 1, 0, 1);
+    else 
+      return fibo(index - 1, _curr, _prev + _curr);
+  }
+}
+
 solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, matrix ud1, matrix ud2)
 {
 	try
 	{
 		solution Xopt;
 		//Tu wpisz kod funkcji
+    double k = fibi((b - a)/epsilon);
+
+    int intK = k;
+
+    double A, B, C, D;
+
+
+    A = a;
+    B = b;
+    C = b - fibo(k -1)/fibo(k)*(b - a);
+    D = a + b - C;
+
+    solution A_sol, B_sol, C_sol, D_sol;
+
+    for(int i = 0; i < k-3;i++){
+      A_sol.x = A;
+      C_sol.x = C;
+      D_sol.x = D;
+      C_sol.fit_fun(ff);
+      D_sol.fit_fun(ff);
+
+      if(C_sol.y < D_sol.y)
+      {
+        A = A;
+        B = D;
+      }
+      else {
+        B= B;
+        A = C;
+      }
+      C = B - fibo(k-i-2) / fibo(k-i-1)*(B - A);
+      D = A + B - C;
+    }
+
+    return C;
 
 		return Xopt;
 	}
+	catch (string ex_info)
+	{
+		throw ("solution fib(...):\n" + ex_info);
+	}
+
+}
 	catch (string ex_info)
 	{
 		throw ("solution fib(...):\n" + ex_info);
