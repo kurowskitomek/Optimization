@@ -37,41 +37,58 @@ int main()
 void lab0()
 {
 	//Funkcja testowa
-	double epsilon = 1e-2;
-	int Nmax = 10000;
-	matrix lb(2, 1, -5), ub(2, 1, 5), a(2, 1);
-	solution opt;
-	a(0) = -1;
-	a(1) = 2;
-	opt = fib(lab1f, 2, lb, ub, epsilon, Nmax, a);
+	//double epsilon = 1e-2;
+	//int Nmax = 10000;
+	//matrix lb(2, 1, -5), ub(2, 1, 5), a(2, 1);
+	//solution opt;
+	//a(0) = -1;
+	//a(1) = 2;
+	//opt = fib(lab1f, 2, lb, ub, epsilon, Nmax, a);
 
-	cout << opt << endl << endl;
-	solution::clear_calls();
+	//cout << opt << endl << endl;
+	//solution::clear_calls();
 
 	//Wahadlo
-	Nmax = 1000;
-	epsilon = 1e-2;
-	lb = 0;
-	ub = 5;
-	double teta_opt = 1;
-	opt = MC(ff0R, 1, lb, ub, epsilon, Nmax, teta_opt);
-	cout << opt << endl << endl;
-	solution::clear_calls();
+	//Nmax = 1000;
+	//epsilon = 1e-2;
+	//lb = 0;
+	//ub = 5;
+	//double teta_opt = 1;
+	//opt = MC(ff0R, 1, lb, ub, epsilon, Nmax, teta_opt);
+	//cout << opt << endl << endl;
+	//solution::clear_calls();
 
-	//Zapis symulacji do pliku csv
-	matrix Y0 = matrix(2, 1), MT = matrix(2, new double[2]{ m2d(opt.x),0.5 });
-	matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, NAN, MT);
-	ofstream Sout("symulacja_lab0.csv");
-	Sout << hcat(Y[0], Y[1]);
-	Sout.close();
-	Y[0].~matrix();
-	Y[1].~matrix();
+	////Zapis symulacji do pliku csv
+	//matrix Y0 = matrix(2, 1), MT = matrix(2, new double[2]{ m2d(opt.x),0.5 });
+	//matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, NAN, MT);
+	//ofstream Sout("symulacja_lab0.csv");
+	//Sout << hcat(Y[0], Y[1]);
+	//Sout.close();
+	//Y[0].~matrix();
+	//Y[1].~matrix();
 }
 
 void lab1()
 {
+	solution y;
 	solution::clear_calls();
-	solution y = lag(lab1f, 50, 100, 0.1, 0.00001, 10000, NAN, NAN);
+
+	cout << "EXP:\n";
+
+	double* y_ex = expansion(lab1f, 20, 1, 0.5, 10000, NAN, NAN);
+	cout << y_ex[0] << ", " << y_ex[1] << "\n";
+
+	cout << "\nFIB:\n";
+
+	solution::clear_calls();
+	y = fib(lab1f, 50, 100, 0.1, NAN, NAN);
+
+	cout << y << endl << endl;
+
+	cout << "\nLAG:\n";
+
+	solution::clear_calls();
+	y = lag(lab1f, 0, 100, 0.1, 0.00001, 10000, NAN, NAN);
 
 	cout << y << endl << endl;
 }

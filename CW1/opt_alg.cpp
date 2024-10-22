@@ -109,41 +109,43 @@ solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	{
 		solution Xopt;
 		//Tu wpisz kod funkcji
-    double k = fibi((b - a)/epsilon);
+		double k = fibi((b - a) / epsilon);
 
-    int intK = k;
+		int intK = k;
 
-    double A, B, C, D;
+		double A, B, C, D;
 
+		A = a;
+		B = b;
+		C = b - fibo(k - 1) / fibo(k) * (b - a);
+		D = a + b - C;
 
-    A = a;
-    B = b;
-    C = b - fibo(k -1)/fibo(k)*(b - a);
-    D = a + b - C;
+		solution A_sol, B_sol, C_sol, D_sol;
 
-    solution A_sol, B_sol, C_sol, D_sol;
+		for (int i = 0; i < k - 3; i++)
+		{
+			A_sol.x = A;
+			C_sol.x = C;
+			D_sol.x = D;
+			C_sol.fit_fun(ff);
+			D_sol.fit_fun(ff);
 
-    for(int i = 0; i < k-3;i++){
-      A_sol.x = A;
-      C_sol.x = C;
-      D_sol.x = D;
-      C_sol.fit_fun(ff);
-      D_sol.fit_fun(ff);
+			if (C_sol.y < D_sol.y)
+			{
+				A = A;
+				B = D;
+			}
+			else
+			{
+				B = B;
+				A = C;
+			}
+			C = B - fibo(k - i - 2) / fibo(k - i - 1) * (B - A);
+			D = A + B - C;
+		}
 
-      if(C_sol.y < D_sol.y)
-      {
-        A = A;
-        B = D;
-      }
-      else {
-        B= B;
-        A = C;
-      }
-      C = B - fibo(k-i-2) / fibo(k-i-1)*(B - A);
-      D = A + B - C;
-    }
-
-    return C;
+		Xopt = C;
+		Xopt.fit_fun(ff, ud1, ud2);
 
 		return Xopt;
 	}
@@ -151,13 +153,6 @@ solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	{
 		throw ("solution fib(...):\n" + ex_info);
 	}
-
-}
-	catch (string ex_info)
-	{
-		throw ("solution fib(...):\n" + ex_info);
-	}
-
 }
 
 solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, double gamma, int Nmax, matrix ud1, matrix ud2)
