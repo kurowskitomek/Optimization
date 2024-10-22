@@ -102,15 +102,18 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		solution A(a);
 		solution B(b);
 		solution C(c);
-		solution D;
-		solution Dold;
+		solution D(0);
+		solution Dold(0);
 
-		A.fit_fun(ff, ud1, ud1);
-		B.fit_fun(ff, ud1, ud1);
-		C.fit_fun(ff, ud1, ud1);
+		A.fit_fun(ff, ud1, ud2);
+		B.fit_fun(ff, ud1, ud2);
+		C.fit_fun(ff, ud1, ud2);
 
 		while (true)
 		{
+			Dold.x = D.x;
+			Dold.fit_fun(ff, ud1, ud2);
+
 			matrix l = 
 				A.y * (pow(B.x, 2) - pow(C.x, 2)) +
 				B.y * (pow(C.x, 2) - pow(A.x, 2)) +
@@ -118,17 +121,25 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 
 			matrix m = 
 				A.y * (B.x - C.x) +
-				C.y * (C.x - A.x) +
-				D.y * (A.x - B.x);
+				B.y * (C.x - A.x) +
+				C.y * (A.x - B.x);
 
 			if (m <= 0)
 				throw;
 
-			Dold.x = D.x;
-			Dold.fit_fun(ff, ud1, ud2);
-
-			D.x = 0.5 * l(0) / m(0);
+			D.x = 0.5 * l / m;
 			D.fit_fun(ff, ud1, ud2);
+
+			double test_a = A.x(0);
+			double test_b = B.x(0);
+			double test_c = C.x(0);
+			double test_d = D.x(0);
+
+
+			double test_ay = A.y(0);
+			double test_by = B.y(0);
+			double test_cy = C.y(0);
+			double test_dy = D.y(0);
 
 			if (A.x < D.x && D.x < C.x)
 				if (D.y < C.y)
@@ -174,7 +185,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 				break;
 		}
 
-		D = Xopt;
+		Xopt = D;
 
 		return Xopt;
 	}

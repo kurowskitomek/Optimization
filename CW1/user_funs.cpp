@@ -4,7 +4,7 @@
 matrix lab1f(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
-	y = -cos(0.1 * x(0)) * exp(pow(-0.1 * x(0) - 2 * _Pi_val, 2)) + 0.002 * pow((0.1 * x), 2);
+	y = -cos(0.1 * x(0)) * exp(-pow(0.1 * x(0) - 2 * 3.14, 2)) + 0.002 * pow((0.1 * x), 2);
 
 	return y;
 }

@@ -22,7 +22,8 @@ int main()
 {
 	try
 	{
-		lab0();
+		//lab0();
+		lab1();
 	}
 	catch (string EX_INFO)
 	{
@@ -68,7 +69,10 @@ void lab0()
 
 void lab1()
 {
+	solution::clear_calls();
+	solution y = lag(lab1f, 50, 100, 0.1, 0.00001, 10000, NAN, NAN);
 
+	cout << y << endl << endl;
 }
 
 void lab2()
