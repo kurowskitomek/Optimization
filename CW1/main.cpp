@@ -37,45 +37,100 @@ int main()
 void lab0()
 {
 	//Funkcja testowa
-	//double epsilon = 1e-2;
-	//int Nmax = 10000;
-	//matrix lb(2, 1, -5), ub(2, 1, 5), a(2, 1);
-	//solution opt;
-	//a(0) = -1;
-	//a(1) = 2;
-	//opt = fib(lab1f, 2, lb, ub, epsilon, Nmax, a);
-
-	//cout << opt << endl << endl;
-	//solution::clear_calls();
+	double epsilon = 1e-2;
+	int Nmax = 10000;
+	matrix lb(2, 1, -5), ub(2, 1, 5), a(2, 1);
+	solution opt;
+	a(0) = -1;
+	a(1) = 2;
+	opt = MC(ff0T, 2, lb, ub, epsilon, Nmax, a);
+	cout << opt << endl << endl;
+	solution::clear_calls();
 
 	//Wahadlo
-	//Nmax = 1000;
-	//epsilon = 1e-2;
-	//lb = 0;
-	//ub = 5;
-	//double teta_opt = 1;
-	//opt = MC(ff0R, 1, lb, ub, epsilon, Nmax, teta_opt);
-	//cout << opt << endl << endl;
-	//solution::clear_calls();
+	Nmax = 1000;
+	epsilon = 1e-2;
+	lb = 0;
+	ub = 5;
+	double teta_opt = 1;
+	opt = MC(ff0R, 1, lb, ub, epsilon, Nmax, teta_opt);
+	cout << opt << endl << endl;
+	solution::clear_calls();
 
-	////Zapis symulacji do pliku csv
-	//matrix Y0 = matrix(2, 1), MT = matrix(2, new double[2]{ m2d(opt.x),0.5 });
-	//matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, NAN, MT);
-	//ofstream Sout("symulacja_lab0.csv");
-	//Sout << hcat(Y[0], Y[1]);
-	//Sout.close();
-	//Y[0].~matrix();
-	//Y[1].~matrix();
+	//Zapis symulacji do pliku csv
+	matrix Y0 = matrix(2, 1), MT = matrix(2, new double[2] { m2d(opt.x), 0.5 });
+	matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, NAN, MT);
+	ofstream Sout("symulacja_lab0.csv");
+	Sout << hcat(Y[0], Y[1]);
+	Sout.close();
+	Y[0].~matrix();
+	Y[1].~matrix();
 }
 
-void lab1()
+void real_problem_lab1()
+{
+	solution::clear_calls();
+	int Nmax = 1000;
+	double epsilon = 1e-8;
+	double gamma = 1e-10;
+	solution optLag, optFib;
+
+	optLag = lag(ff1R, 0.0001, 0.01, epsilon, gamma, Nmax, NAN, NAN);
+	cout << optLag << endl << endl;
+	solution::clear_calls();
+
+	optFib = fib(ff1R, 0.0001, 0.01, epsilon, NAN, NAN);
+	cout << optFib << endl << endl;
+	solution::clear_calls();
+
+	std::ofstream symLag("symulacja_lab1_LAG.csv");
+	double Y_m[3] = { 5, 1, 10 };
+
+	if (symLag.is_open())
+	{
+		symLag << "t,Volume_A,Volume_B,Temperature_B\n";
+		matrix Y0 = matrix(3, Y_m);
+		matrix* Y = solve_ode(df1, 0, 1, 1000, Y0, NULL, optLag.x);
+		for (int i = 0; i < get_len(Y[0]); i++)
+		{
+			symLag << Y[0](i) << "," << Y[1](i, 0) << "," << Y[1](i, 1) << "," << Y[1](i, 2) << "\n";
+		}
+		symLag.close();
+		std::cout << "Results saved to symulacja_lab1_LAG.csv" << std::endl;
+	}
+	else
+	{
+		std::cerr << "Failed to open symulacja_lab1_LAG.csv for writing." << std::endl;
+	}
+
+	std::ofstream symFib("symulacja_lab1_FIB.csv");
+
+	if (symFib.is_open())
+	{
+		symFib << "t,Volume_A,Volume_B,Temperature_B\n";
+		matrix Y0 = matrix(3, Y_m);
+		matrix* Y = solve_ode(df1, 0, 1, 1000, Y0, NULL, optFib.x);
+		for (int i = 0; i < get_len(Y[0]); i++)
+		{
+			symFib << Y[0](i) << "," << Y[1](i, 0) << "," << Y[1](i, 1) << "," << Y[1](i, 2) << "\n";
+		}
+		symFib.close();
+		std::cout << "Results saved to symulacja_lab1_FIB.csv" << std::endl;
+	}
+	else
+	{
+		std::cerr << "Failed to open symulacja_lab1_FIB.csv for writing." << std::endl;
+	}
+}
+
+void test_problem_lab1()
 {
 	solution y;
 	solution::clear_calls();
 
 	cout << "EXP:\n";
 
-	double* y_ex = expansion(lab1f, 30, 1.0, 2.25, 1000, NAN, NAN);
+	double* y_ex = expansion(lab1f, 30, 1.0, 2.25, 10000, NAN, NAN);
 	cout << y_ex[0] << ", " << y_ex[1] << "\n";
 
 	cout << "\nFIB:\n";
@@ -88,9 +143,15 @@ void lab1()
 	cout << "\nLAG:\n";
 
 	solution::clear_calls();
-	y = lag(lab1f, 0, 100, 0.1, 0.00001, 1000, NAN, NAN);
+	y = lag(lab1f, 0, 100, 0.1, 0.00001, 10000, NAN, NAN);
 
 	cout << y << endl << endl;
+}
+
+void lab1()
+{
+	test_problem_lab1();
+	real_problem_lab1();
 }
 
 void lab2()

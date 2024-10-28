@@ -92,69 +92,69 @@ double* expansion(matrix(ff)(matrix, matrix, matrix), double x0, double d, doubl
 		throw ("double* expansion(...):\n" + ex_info);
 	}
 }
-
-
-double* expansion2(matrix(*ff)(matrix, matrix, matrix), double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
-{
-	try
-	{
-		double* p = new double[2] { 0, 0 };
-		// Tu wpisz kod funkcji
-		int i = 0;
-		double x1 = x0 + d;
-
-		if (ff(x1, NAN, NAN) == ff(x0, NAN, NAN))
-		{
-			p[0] = x0;
-			p[1] = x1;
-			return p;
-		}
-
-		if (ff(x1, NAN, NAN) > ff(x0, NAN, NAN))
-		{
-			d = -d;
-			x1 = x0 + d;
-
-			if (ff(x1, NAN, NAN) >= ff(x0, NAN, NAN))
-			{
-				p[0] = x1;
-				p[1] = x0 - d;
-				return p;
-			}
-		}
-
-		double last = 0;
-
-		while (true)
-		{
-			if (solution::f_calls > Nmax)
-				throw;
-
-			i++;
-			last = x1;
-			x1 = x0 + pow(alpha, i) * d;
-
-			if (ff(last, NAN, NAN) <= ff(x1, NAN, NAN))
-				break;
-		}
-
-		if (d > 0)
-		{
-			p[0] = last;//x0 + pow(alpha, i - 2) * d;
-			p[1] = x1;
-			return p;
-		}
-
-		p[0] = x1;//x0 + pow(alpha, i - 2) * d;
-		p[1] = last;
-
-		return p;
-	}
-	catch (string ex_info)
-	{
-		throw("double* expansion(...):\n" + ex_info);
-	}
-}
+//
+//
+//double* expansion2(matrix(*ff)(matrix, matrix, matrix), double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
+//{
+//	try
+//	{
+//		double* p = new double[2] { 0, 0 };
+//		// Tu wpisz kod funkcji
+//		int i = 0;
+//		double x1 = x0 + d;
+//
+//		if (ff(x1, NAN, NAN) == ff(x0, NAN, NAN))
+//		{
+//			p[0] = x0;
+//			p[1] = x1;
+//			return p;
+//		}
+//
+//		if (ff(x1, NAN, NAN) > ff(x0, NAN, NAN))
+//		{
+//			d = -d;
+//			x1 = x0 + d;
+//
+//			if (ff(x1, NAN, NAN) >= ff(x0, NAN, NAN))
+//			{
+//				p[0] = x1;
+//				p[1] = x0 - d;
+//				return p;
+//			}
+//		}
+//
+//		double last = 0;
+//
+//		while (true)
+//		{
+//			if (solution::f_calls > Nmax)
+//				throw;
+//
+//			i++;
+//			last = x1;
+//			x1 = x0 + pow(alpha, i) * d;
+//
+//			if (ff(last, NAN, NAN) <= ff(x1, NAN, NAN))
+//				break;
+//		}
+//
+//		if (d > 0)
+//		{
+//			p[0] = last;//x0 + pow(alpha, i - 2) * d;
+//			p[1] = x1;
+//			return p;
+//		}
+//
+//		p[0] = x1;//x0 + pow(alpha, i - 2) * d;
+//		p[1] = last;
+//
+//		return p;
+//	}
+//	catch (string ex_info)
+//	{
+//		throw("double* expansion(...):\n" + ex_info);
+//	}
+//}
 
 //returns index of fib number greater than x
 double fibi(double x, double _prev = 0, double _curr = 0, double _index = 1)
@@ -279,17 +279,6 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 			D.x = 0.5 * l / m;
 			D.fit_fun(ff, ud1, ud2);
 
-			double test_a = A.x(0);
-			double test_b = B.x(0);
-			double test_c = C.x(0);
-			double test_d = D.x(0);
-
-
-			double test_ay = A.y(0);
-			double test_by = B.y(0);
-			double test_cy = C.y(0);
-			double test_dy = D.y(0);
-
 			if (A.x < D.x && D.x < C.x)
 				if (D.y < C.y)
 				{
@@ -308,7 +297,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 			else
 				if (C.x < D.x && D.x < B.x)
 				{
-					if (ff(D.x, NAN, NAN) < ff(C.x, NAN, NAN))
+					if (D.y < C.y)
 					{
 						A.x = C.x;
 						A.fit_fun(ff, ud1, ud2);
