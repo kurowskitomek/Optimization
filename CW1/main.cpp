@@ -75,9 +75,13 @@ void real_problem_lab1()
 	double gamma = 1e-10;
 	solution optLag, optFib;
 
+	cout << "Optymalizacja Lagrang'e\n";
+
 	optLag = lag(ff1R, 0.0001, 0.01, epsilon, gamma, Nmax, NAN, NAN);
 	cout << optLag << endl << endl;
 	solution::clear_calls();
+
+	cout << "\nOptymalizacja Fibonacci'e\n";
 
 	optFib = fib(ff1R, 0.0001, 0.01, epsilon, NAN, NAN);
 	cout << optFib << endl << endl;
@@ -90,7 +94,7 @@ void real_problem_lab1()
 	{
 		symLag << "t,Volume_A,Volume_B,Temperature_B\n";
 		matrix Y0 = matrix(3, Y_m);
-		matrix* Y = solve_ode(df1, 0, 1, 1000, Y0, NULL, optLag.x);
+		matrix* Y = solve_ode(df1, 0, 1, 2000, Y0, NULL, optLag.x);
 		for (int i = 0; i < get_len(Y[0]); i++)
 		{
 			symLag << Y[0](i) << "," << Y[1](i, 0) << "," << Y[1](i, 1) << "," << Y[1](i, 2) << "\n";
@@ -109,7 +113,7 @@ void real_problem_lab1()
 	{
 		symFib << "t,Volume_A,Volume_B,Temperature_B\n";
 		matrix Y0 = matrix(3, Y_m);
-		matrix* Y = solve_ode(df1, 0, 1, 1000, Y0, NULL, optFib.x);
+		matrix* Y = solve_ode(df1, 0, 1, 2000, Y0, NULL, optFib.x);
 		for (int i = 0; i < get_len(Y[0]); i++)
 		{
 			symFib << Y[0](i) << "," << Y[1](i, 0) << "," << Y[1](i, 1) << "," << Y[1](i, 2) << "\n";
