@@ -75,7 +75,7 @@ void lab1()
 
 	cout << "EXP:\n";
 
-	double* y_ex = expansion(lab1f, 20, 1, 0.5, 10000, NAN, NAN);
+	double* y_ex = expansion(lab1f, 30, 1.0, 2.25, 1000, NAN, NAN);
 	cout << y_ex[0] << ", " << y_ex[1] << "\n";
 
 	cout << "\nFIB:\n";
@@ -88,7 +88,7 @@ void lab1()
 	cout << "\nLAG:\n";
 
 	solution::clear_calls();
-	y = lag(lab1f, 0, 100, 0.1, 0.00001, 10000, NAN, NAN);
+	y = lag(lab1f, 0, 100, 0.1, 0.00001, 1000, NAN, NAN);
 
 	cout << y << endl << endl;
 }

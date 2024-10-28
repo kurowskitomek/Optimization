@@ -30,46 +30,129 @@ solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, do
 	}
 }
 
-double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
+double* expansion(matrix(ff)(matrix, matrix, matrix), double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
 {
-	try {
-			double *p = new double[2]{0, 0};
-			// Tu wpisz kod funkcji
-			int i = 0;
-			double x1 = x0 + d;
-			if (ff(x1, 0, 0) == ff(x0, 0, 0)) {
-					p[0] = x0;
-					p[1] = x1;
-					return p;
-			}
-			if (ff(x1, 0, 0) > ff(x0, 0, 0)) {
-					d = -d;
-					x1 = x0 + d;
-					if (ff(x1, 0, 0) >= ff(x0, 0, 0)) {
-							p[0] = x1;
-							p[1] = x0 - d;
-							return p;
-					}
-			}
-			double last = 0;
-			do {
-					if (i > Nmax)
-							throw;
-					i++;
-					last = x1;
-					x1 = x0 + pow(alpha, i) * d;
-			} while (ff(last, 0, 0) <= ff(x1, 0, 0));
-			if (d > 0) {
-					p[0] = x0 + pow(alpha, i - 2) * d;
-					p[1] = x1;
-					return p;
-			}
-			p[1] = x0 + pow(alpha, i - 2) * d;
-			p[0] = x1;
+	try
+	{
 
+		double* p = new double[2] { 0, 0 }; //przedzial 
+		int i = 0; //i = 0 
+		solution X0(x0);
+		solution X1(x0 + d);
+
+		if (X1.fit_fun(ff, ud1, ud2) == X0.fit_fun(ff, ud1, ud2))
+		{
+			p[0] = x0;
+			p[1] = x0 + d;
 			return p;
-	} catch (string ex_info) {
-			throw("double* expansion(...):\n" + ex_info);
+		}
+
+		if (X1.fit_fun(ff, ud1, ud2) > X0.fit_fun(ff, ud1, ud2))
+		{
+			d = -d;
+			X1.x = X0.x + d;
+			if (X1.fit_fun(ff, ud1, ud2) >= X0.fit_fun(ff, ud1, ud2))
+			{
+				p[0] = m2d(X1.x);
+				p[1] = m2d(X0.x - d);
+				return p;
+			}
+		}
+
+		solution XH(x0);
+		solution XI(x0);
+		solution XJ(x0);
+
+		do
+		{
+			if (solution::f_calls > Nmax)
+				throw ("Max iter!\n");			
+
+			i++;
+			XH = XI;
+			XI = XJ;
+			XJ.x = X0.x + pow(alpha, i) * d;
+		}
+		while (XI.fit_fun(ff, ud1, ud2) > XJ.fit_fun(ff, ud1, ud2));
+
+		if (d > 0)
+		{
+			p[0] = m2d(XH.x);
+			p[1] = m2d(XJ.x);
+			return p;
+		}
+
+		p[0] = m2d(XJ.x);
+		p[1] = m2d(XH.x);
+		
+		return p;
+	}
+	catch (string ex_info)
+	{
+		throw ("double* expansion(...):\n" + ex_info);
+	}
+}
+
+
+double* expansion2(matrix(*ff)(matrix, matrix, matrix), double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
+{
+	try
+	{
+		double* p = new double[2] { 0, 0 };
+		// Tu wpisz kod funkcji
+		int i = 0;
+		double x1 = x0 + d;
+
+		if (ff(x1, NAN, NAN) == ff(x0, NAN, NAN))
+		{
+			p[0] = x0;
+			p[1] = x1;
+			return p;
+		}
+
+		if (ff(x1, NAN, NAN) > ff(x0, NAN, NAN))
+		{
+			d = -d;
+			x1 = x0 + d;
+
+			if (ff(x1, NAN, NAN) >= ff(x0, NAN, NAN))
+			{
+				p[0] = x1;
+				p[1] = x0 - d;
+				return p;
+			}
+		}
+
+		double last = 0;
+
+		while (true)
+		{
+			if (solution::f_calls > Nmax)
+				throw;
+
+			i++;
+			last = x1;
+			x1 = x0 + pow(alpha, i) * d;
+
+			if (ff(last, NAN, NAN) <= ff(x1, NAN, NAN))
+				break;
+		}
+
+		if (d > 0)
+		{
+			p[0] = last;//x0 + pow(alpha, i - 2) * d;
+			p[1] = x1;
+			return p;
+		}
+
+		p[0] = x1;//x0 + pow(alpha, i - 2) * d;
+		p[1] = last;
+
+		return p;
+	}
+	catch (string ex_info)
+	{
+		throw("double* expansion(...):\n" + ex_info);
 	}
 }
 
