@@ -1,4 +1,4 @@
-#include"opt_alg.h"
+﻿#include"opt_alg.h"
 
 solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
@@ -366,16 +366,109 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 {
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+		// Initialize variables
+		int n = get_dim(x0);           // Number of dimensions
+		solution Xopt;                 // To store the optimal solution
+		int i = 0;                     // Iteration counter
+		matrix xb = x0;                // Current point
+		matrix sj = s0;                // Current step size vector
+		matrix lambdaj(n);             // Lambda vector for direction length
+		matrix pj(n);                  // Count of steps taken in each direction
+		matrix dj(n);                  // Direction vector for current iteration
 
-		return Xopt;
+		// Initialize direction vectors
+		for (int j = 0; j < n; j++)
+		{
+			dj(j) = 1; // Initialize with unit vectors
+			lambdaj(j) = 0; // Initialize λj(0) = 0
+			pj(j) = 0; // Initialize pj(0) = 0
+		}
+
+		// Start of the loop
+		while (true)
+		{
+			// Loop over each dimension
+			for (int j = 0; j < n; j++)
+			{
+				// Check if the function value decreases
+				if (ff(xb + sj * dj, ud1, ud2) < ff(xb, ud1, ud2))
+				{
+					xb = xb + sj * dj;  // Update xb
+					lambdaj(j) += sj;    // Update λj
+					sj = alpha * sj;      // Expand step size
+				}
+				else
+				{
+					sj = -beta * sj;     // Contract step size
+					pj(j) += 1;          // Increment the step count
+				}
+			}
+
+			// Update iteration counter
+			i++;
+			// Store the current position
+			Xopt = solution(xb);
+			Xopt.y = ff(xb, ud1, ud2); // Store the function value at the current point
+
+
+			bool basis_change_needed = false;
+			for (int j = 0; j < n; j++)
+			{
+				if (lambdaj[j] != 0 && pj[j] != 0)
+				{
+					basis_change_needed = true;
+					break;
+				}
+			}
+
+			// Check for direction basis change
+			if (basis_change_needed) // Check if there were steps taken
+			{
+				// Change basis for directions `dj` based on your method's logic
+				//for (int j = 0; j < n; j++)
+				//{
+				//	dj(j) = /* new direction logic here based on your requirements */;
+				//}
+
+				// Reset lambda and step count
+				lambdaj = 0; // λj(i) = 0
+				pj = 0;      // pj(i) = 0
+				sj = s0;     // Reset sj to initial step size
+
+				for (int j = 0; j < n; j++)
+				{
+					if (pj[j] > some_threshold)
+					{ // Adjust this condition based on your needs
+						dj[j] = (dj[j] == 1) ? -1 : 1; // Simple flip, can also be reinitialized
+						// Alternatively, you might want to calculate a new direction based on your specific requirements.
+						// Example: dj[j] = calculate_new_direction(xb, j); // Custom function to calculate new direction.
+					}
+					else
+					{
+						dj[j] = 1; // Reset to a unit direction if it hasn't failed
+					}
+				}
+			}
+
+			// Check if maximum number of function calls exceeded
+			if (solution::f_calls > Nmax)
+			{
+				throw std::runtime_error("Exceeded maximum function calls");
+			}
+
+			// Check termination condition
+			double maxStepSize = sj.max_abs(); // Assuming max_abs gets the maximum absolute value of sj
+			if (maxStepSize < epsilon) break; // Terminate if max step size is less than ε
+		}
+
+		return Xopt; // Return the optimal solution
 	}
 	catch (string ex_info)
 	{
 		throw ("solution Rosen(...):\n" + ex_info);
 	}
 }
+
 
 solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {

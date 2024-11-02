@@ -134,20 +134,20 @@ void test_problem_lab1()
 
 	cout << "EXP:\n";
 
-	double* y_ex = expansion(lab1f, 30, 1.0, 2.25, 10000, NAN, NAN);
+	double* y_ex = expansion(ff1T, 30, 1.0, 2.25, 10000, NAN, NAN);
 	cout << y_ex[0] << ", " << y_ex[1] << "\n";
 
 	cout << "\nFIB:\n";
 
 	solution::clear_calls();
-	y = fib(lab1f, 50, 100, 0.1, NAN, NAN);
+	y = fib(ff1T, 50, 100, 0.1, NAN, NAN);
 
 	cout << y << endl << endl;
 
 	cout << "\nLAG:\n";
 
 	solution::clear_calls();
-	y = lag(lab1f, 0, 100, 0.1, 0.00001, 10000, NAN, NAN);
+	y = lag(ff1T, 0, 100, 0.1, 0.00001, 10000, NAN, NAN);
 
 	cout << y << endl << endl;
 }
