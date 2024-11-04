@@ -1,10 +1,10 @@
 /*********************************************
-Kod stanowi uzupe³nienie materia³ów do æwiczeñ
+Kod stanowi uzupeï¿½nienie materiaï¿½ï¿½w do ï¿½wiczeï¿½
 w ramach przedmiotu metody optymalizacji.
-Kod udostêpniony na licencji CC BY-SA 3.0
-Autor: dr in¿. £ukasz Sztangret
+Kod udostï¿½pniony na licencji CC BY-SA 3.0
+Autor: dr inï¿½. ï¿½ukasz Sztangret
 Katedra Informatyki Stosowanej i Modelowania
-Akademia Górniczo-Hutnicza
+Akademia Gï¿½rniczo-Hutnicza
 Data ostatniej modyfikacji: 19.09.2023
 *********************************************/
 
@@ -23,7 +23,8 @@ int main()
 	try
 	{
 		//lab0();
-		lab1();
+		//lab1();
+		lab2();
 	}
 	catch (string EX_INFO)
 	{
@@ -160,6 +161,32 @@ void lab1()
 
 void lab2()
 {
+	solution y;
+	solution::clear_calls();
+
+	cout << "HJ:\n";
+	double s = 0.001;
+	matrix s0(s);
+	matrix x0(0);
+	s0.add_row(s);
+	x0.add_row(0);
+
+	matrix s1(s);
+	matrix x1(0);
+	s1.add_row(s);
+	x1.add_row(0);
+	//s0.add_col(s);
+
+	solution y_ex = HJ(ff2T, x1, 0.001, 0.2, 0.001, 1000, NAN);
+	cout << y_ex.x << "\n";
+
+	cout << "\nRosen:\n";
+
+	solution::clear_calls();
+	
+	y = Rosen(ff2T, x0, s0, 2, 0.0001, 0.001, 100000000);
+
+	cout << y.x << endl << endl;
 
 }
 
