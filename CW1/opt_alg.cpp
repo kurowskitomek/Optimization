@@ -337,10 +337,33 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 {
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
-
-		return Xopt;
+		solution Xopt, XB_old, X;
+		Xopt.x = x0 ;
+		Xopt.fit_fun(0);
+		while (true)
+		{
+			X = HJ_trial(nullptr, Xopt , s );
+			if (X.y < Xopt.y )
+			{
+				while (true)
+				{
+					XB_old =Xopt ;
+					Xopt = X ;
+					//X.x = 2*XB.x - XB_old.x ;
+					X.x =  Xopt.x - XB_old.x;
+					X.fit_fun(0);
+					X = HJ_trial(ff ,X, s );
+					if (X.y >= Xopt.y )
+						break;
+					if (solution::f_calls >Nmax )
+						return Xopt;
+				}
+			}
+			else
+				s *= alpha ;
+			if (s< epsilon || solution::f_calls>Nmax )
+				return Xopt;
+		}
 	}
 	catch (string ex_info)
 	{
@@ -352,8 +375,24 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 {
 	try
 	{
-		//Tu wpisz kod funkcji
-
+		int *n = get_size(XB.x);
+		matrix D(n[0], n[0]);
+		for (int i = 0; i < n[0]; i++) D(i, i) = 1;
+		solution X;
+		for (int i = 0; i < n[0]; ++i)
+		{
+			X.x = XB.x + s * D[i] ;
+			X.fit_fun(0);
+			if (X.y<XB.y )
+				XB = X ;
+			else
+			{
+				X.x = XB.x - s * D[i] ;
+				X.fit_fun(0);
+				if (X.y < XB.y )
+					XB = X ;
+			}
+		}
 		return XB;
 	}
 	catch (string ex_info)
@@ -364,108 +403,66 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try
+	try 
 	{
-		// Initialize variables
-		int n = get_dim(x0);           // Number of dimensions
-		solution Xopt;                 // To store the optimal solution
-		int i = 0;                     // Iteration counter
-		matrix xb = x0;                // Current point
-		matrix sj = s0;                // Current step size vector
-		matrix lambdaj(n);             // Lambda vector for direction length
-		matrix pj(n);                  // Count of steps taken in each direction
-		matrix dj(n);                  // Direction vector for current iteration
+		int *n = get_size(x0);
+		matrix l(n[0], 1), p(n[0], 1), s(s0);
+		matrix D(n[0], n[0]);
+		for (int i = 0; i < n[0]; i++)
+				D(i, i) = 1;
 
-		// Initialize direction vectors
-		for (int j = 0; j < n; j++)
-		{
-			dj(j) = 1; // Initialize with unit vectors
-			lambdaj(j) = 0; // Initialize λj(0) = 0
-			pj(j) = 0; // Initialize pj(0) = 0
-		}
-
-		// Start of the loop
-		while (true)
-		{
-			// Loop over each dimension
-			for (int j = 0; j < n; j++)
-			{
-				// Check if the function value decreases
-				if (ff(xb + sj * dj, ud1, ud2) < ff(xb, ud1, ud2))
-				{
-					xb = xb + sj * dj;  // Update xb
-					lambdaj(j) += sj;    // Update λj
-					sj = alpha * sj;      // Expand step size
+		solution X, Xt;
+		X.x = x0;
+		X.fit_fun(0);
+		while (true) {
+				for (int i = 0; i < n[0]; ++i) {
+						Xt.x = X.x + s(i) * D[i];
+						Xt.fit_fun(0);
+						if (Xt.y < X.y) {
+								X = Xt;
+								l(i) += s(i);
+								s(i) *= alpha;
+						} else {
+								p(i) = p(i) + 1;
+								s(i) *= -beta;
+						}
 				}
-				else
-				{
-					sj = -beta * sj;     // Contract step size
-					pj(j) += 1;          // Increment the step count
+				bool change = true;
+				for (int i = 0; i < n[0]; ++i)
+						if (p(i) == 0 || l(i) == 0) {
+								change = false;
+								break;
+						}
+				if (change) {
+						matrix Q(n[0], n[0]), v(n[0], 1);
+						for (int i = 0; i < n[0]; ++i)
+								for (int j = 0; j <= i; ++j)
+										Q(i, j) = l(i);
+						Q = D * Q;
+						v = Q[0] / norm(Q[0]);
+						D.set_col(v, 0);
+						for (int i = 1; i < n[0]; ++i) {
+								matrix temp(n[0], 1);
+								for (int j = 0; j < i; ++j)
+										temp =
+											temp +
+											(trans(Q[i]) * D[j]) * D[j];
+								v = Q[i] - temp;
+								D.set_col(v, i);
+						}
+						s = s0;
+						l = matrix(n[0], 1);
+						p = matrix(n[0], 1);
 				}
+				double max_s = abs(s(0));
+				for (int i = 1; i < n[0]; ++i)
+						if (max_s < abs(s(i)))
+								max_s = abs(s(i));
+				if (max_s < epsilon || solution ::f_calls > Nmax)
+						return X;
 			}
-
-			// Update iteration counter
-			i++;
-			// Store the current position
-			Xopt = solution(xb);
-			Xopt.y = ff(xb, ud1, ud2); // Store the function value at the current point
-
-
-			bool basis_change_needed = false;
-			for (int j = 0; j < n; j++)
-			{
-				if (lambdaj[j] != 0 && pj[j] != 0)
-				{
-					basis_change_needed = true;
-					break;
-				}
-			}
-
-			// Check for direction basis change
-			if (basis_change_needed) // Check if there were steps taken
-			{
-				// Change basis for directions `dj` based on your method's logic
-				//for (int j = 0; j < n; j++)
-				//{
-				//	dj(j) = /* new direction logic here based on your requirements */;
-				//}
-
-				// Reset lambda and step count
-				lambdaj = 0; // λj(i) = 0
-				pj = 0;      // pj(i) = 0
-				sj = s0;     // Reset sj to initial step size
-
-				for (int j = 0; j < n; j++)
-				{
-					if (pj[j] > some_threshold)
-					{ // Adjust this condition based on your needs
-						dj[j] = (dj[j] == 1) ? -1 : 1; // Simple flip, can also be reinitialized
-						// Alternatively, you might want to calculate a new direction based on your specific requirements.
-						// Example: dj[j] = calculate_new_direction(xb, j); // Custom function to calculate new direction.
-					}
-					else
-					{
-						dj[j] = 1; // Reset to a unit direction if it hasn't failed
-					}
-				}
-			}
-
-			// Check if maximum number of function calls exceeded
-			if (solution::f_calls > Nmax)
-			{
-				throw std::runtime_error("Exceeded maximum function calls");
-			}
-
-			// Check termination condition
-			double maxStepSize = sj.max_abs(); // Assuming max_abs gets the maximum absolute value of sj
-			if (maxStepSize < epsilon) break; // Terminate if max step size is less than ε
-		}
-
-		return Xopt; // Return the optimal solution
-	}
-	catch (string ex_info)
-	{
-		throw ("solution Rosen(...):\n" + ex_info);
+	} catch (string ex_info) {
+			throw ("solution Rosen(...):\n" + ex_info);
 	}
 }
 
