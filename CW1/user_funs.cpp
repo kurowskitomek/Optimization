@@ -77,7 +77,7 @@ matrix df2(double t, matrix Y, matrix ud1, matrix ud2)
 	double mc = 5;
 	double I = mr * l * l / 3 + mc * l * l;
 	double b = 0.5;
-	double Mt = ud2(0) * (ud1(0) - Y(0)) + ud2(1) + (ud1(1) - Y(1));
+	double Mt = ud2(0) * (ud1(0) - Y(0)) + ud2(1) * (ud1(1) - Y(1));
 
 	dY(1) = (Mt - b * Y(1)) / I;
 
