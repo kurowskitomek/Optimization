@@ -32,7 +32,24 @@ matrix ff1R(matrix x, matrix ud1, matrix ud2)
 
 matrix ff2R(matrix x, matrix ud1, matrix ud2)
 {
-
+	matrix y(1);
+	y(0) = 0;
+	//matrix x
+	matrix Y0(2, 1), Yref(2, new double[2] { 3.14, 0 });
+	//cout << "bbbb" << endl;
+	matrix* Y = solve_ode(df2, 0, 0.1, 100, Y0, Yref, x);
+	//cout << "bbbb" << endl;
+	int n = get_len(Y[0]);
+	for (int i = 0; i < n; i++)
+	{
+		y = y + 10.0 * pow(Yref(0) - Y[1](i, 0), 2)
+			+ pow(Yref(1) - Y[1](i, 0), 2)
+			+ pow(x(0) * (Yref(0) - Y[1](i, 0)) + x(1) * (Yref(1) - Y[1](i, 0)), 2);
+		y = 0.1 * y;
+	}
+	Y[0].~matrix();
+	Y[1].~matrix();
+	return y;
 }
 
 matrix df1(double t, matrix Y, matrix ud1, matrix ud2)
@@ -52,20 +69,17 @@ matrix df1(double t, matrix Y, matrix ud1, matrix ud2)
 
 matrix df2(double t, matrix Y, matrix ud1, matrix ud2)
 {
-	//double mr = 1.0; //masa ramienia
-	//double mc = 10.0; //masa ciezarka
-	//double l = 0.5; //dl. ramienia
-	//double alfa_ref = 3.14159265358979323846; //pi rad
-	//double omega_ref = 0.0; //0 rad/s
-	//double b = 0.5; //wsp. tarcia
-	////moment bezwladnosci:
-	//double I = (mr * l * l) / 3 + mc * l * l;
-	//double k1 = P(0); //wsp. wzmocnienia
-	//double k2 = P(1); //przesylane w P
-
 	matrix dY(2, 1);
-	/*dY(0) = Y(1);
-	dY(1) = (k1 * (alfa_ref - Y(0)) + k2 * (omega_ref - Y(1)) - b * Y(1));*/
+
+	dY(0) = Y(1);
+	double l = 1;
+	double mr = 1;
+	double mc = 5;
+	double I = mr * l * l / 3 + mc * l * l;
+	double b = 0.5;
+	double Mt = ud2(0) * (ud1(0) - Y(0)) + ud2(1) + (ud1(1) - Y(1));
+
+	dY(1) = (Mt - b * Y(1)) / I;
 
 	return dY;
 }
