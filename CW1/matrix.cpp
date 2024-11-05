@@ -1,4 +1,4 @@
-//Ten plik nie powinien byï¿½ edytowany
+//Ten plik nie powinien byæ edytowany
 
 #include"matrix.h"
 
@@ -9,8 +9,6 @@ matrix::matrix(double L)
 	M[0] = new double[1];
 	M[0][0] = L;
 }
-
-
 
 matrix::matrix(int nv, int mv, double L)
 {

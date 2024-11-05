@@ -1,13 +1,14 @@
 /*********************************************
-Kod stanowi uzupeï¿½nienie materiaï¿½ï¿½w do ï¿½wiczeï¿½
+Kod stanowi uzupe³nienie materia³ów do æwiczeñ
 w ramach przedmiotu metody optymalizacji.
-Kod udostï¿½pniony na licencji CC BY-SA 3.0
-Autor: dr inï¿½. ï¿½ukasz Sztangret
+Kod udostêpniony na licencji CC BY-SA 3.0
+Autor: dr in¿. £ukasz Sztangret
 Katedra Informatyki Stosowanej i Modelowania
-Akademia Gï¿½rniczo-Hutnicza
+Akademia Górniczo-Hutnicza
 Data ostatniej modyfikacji: 19.09.2023
 *********************************************/
-
+#include <iostream>
+#include <random>
 #include"opt_alg.h"
 
 void lab0();
@@ -23,8 +24,7 @@ int main()
 	try
 	{
 		//lab0();
-		//lab1();
-		lab2();
+		lab1();
 	}
 	catch (string EX_INFO)
 	{
@@ -128,65 +128,107 @@ void real_problem_lab1()
 	}
 }
 
+/*void test_problem_lab1()
+{
+	for(int i =0; i < 100; i++){
+		std::random_device rd;
+    		std::mt19937 gen(rd());
+		solution y;
+		solution::clear_calls();
+
+		cout << "EXP:\n";
+
+		std::uniform_real_distribution<double> dist(1.1, 2.5);
+		double random = dist(gen);
+	
+		double* y_ex = expansion(lab1f, random, 1.0, 2.25, 10000, NAN, NAN);
+		cout << y_ex[0] << ", " << y_ex[1] << "\n";
+
+		cout << "\nFIB:\n";
+
+		solution::clear_calls();
+		y = fib(lab1f, y_ex[0], y_ex[1], 0.1, NAN, NAN);
+
+		cout << y << endl << endl;
+
+		cout << "\nLAG:\n";
+
+		solution::clear_calls();
+		y = lag(lab1f, y_ex[0], y_ex[1], 0.1, 0.00001, 10000, NAN, NAN);
+
+		cout << y << endl << endl;
+	}
+}*/
+
 void test_problem_lab1()
 {
-	solution y;
-	solution::clear_calls();
+    // Open a CSV file for writing
+    std::ofstream csv_file("results.csv");
+    if (!csv_file.is_open()) {
+        std::cerr << "Error opening file" << std::endl;
+        return;
+    }
 
-	cout << "EXP:\n";
+    // Write headers to the CSV file
+    //csv_file << "expansion_start ; expansion_end ; fib_x ; fib_y ; lag_x ; lag_y\n";
 
-	double* y_ex = expansion(ff1T, 30, 1.0, 2.25, 10000, NAN, NAN);
-	cout << y_ex[0] << ", " << y_ex[1] << "\n";
+    std::uniform_real_distribution<double> dist(-100.0, 100.0);
+    double x0 = 0.25;
+    for(int j = 0; j< 3;j++){
+    x0+=1.0;
+    for(int i = 0; i < 100; i++){
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        solution y, x;
+        solution::clear_calls();
 
-	cout << "\nFIB:\n";
+        // Expansion phase
+        double random = dist(gen);
+        double* y_ex = expansion(lab1f, random, 1.0, x0, 10000, NAN, NAN);
+        double expansion_start = y_ex[0];
+        double expansion_end = y_ex[1];
+        //std::cout << "EXP:\n" << expansion_start << ", " << expansion_end << "\n";
 
-	solution::clear_calls();
-	y = fib(ff1T, 50, 100, 0.1, NAN, NAN);
+        csv_file <<x0<<";"<<random<<";"<<expansion_start<<";"<<expansion_end<<";"<< solution::f_calls<<";";
+        // Fibonacci phase
+        solution::clear_calls();
+        x = fib(lab1f, expansion_start, expansion_end, 0.1, NAN, NAN);
+        //std::cout << "FIB:\n" << x<< std::endl;
+        std::cout << "-------------------------------------------" << std::endl;
+        std::string loc_glb;
+        if(x.x > 50){
+        loc_glb = "glob";
+        }
+        else {
+          loc_glb = "loc";
+        }
 
-	cout << y << endl << endl;
+        csv_file <<x.x<<";"<<x.y<<";"<< solution::f_calls<<";"<<loc_glb<<";";
 
-	cout << "\nLAG:\n";
+        // Lagrange phase
+        solution::clear_calls();
+        y = lag(lab1f, expansion_start, expansion_end, 0.1, 0.00001, 10000, NAN, NAN);
+        //std::cout << "LAG:\n" << y<< std::endl << std::endl;
+        std::cout << "-------------------------------------------next" << std::endl;
 
-	solution::clear_calls();
-	y = lag(ff1T, 0, 100, 0.1, 0.00001, 10000, NAN, NAN);
+        // Write the results to the CSV file
+        csv_file <<y.x<<";"<<y.y<<";"<< solution::f_calls<<";"<<loc_glb<<"\n";
+    }
+    }
 
-	cout << y << endl << endl;
+    // Close the CSV file
+    csv_file.close();
 }
+
 
 void lab1()
 {
 	test_problem_lab1();
-	real_problem_lab1();
+	//real_problem_lab1();
 }
 
 void lab2()
 {
-	solution y;
-	solution::clear_calls();
-
-	cout << "HJ:\n";
-	double s = 0.001;
-	matrix s0(s);
-	matrix x0(0);
-	s0.add_row(s);
-	x0.add_row(0);
-
-	matrix s1(s);
-	matrix x1(0);
-	s1.add_row(s);
-	x1.add_row(0);
-	//s0.add_col(s);
-
-	solution y_ex = HJ(ff2T, x1, 0.001, 0.2, 0.001, 1000, NAN);
-	cout << y_ex.x << "\n";
-
-	cout << "\nRosen:\n";
-
-	solution::clear_calls();
-	
-	y = Rosen(ff2T, x0, s0, 2, 0.0001, 0.001, 100000000);
-
-	cout << y.x << endl << endl;
 
 }
 
