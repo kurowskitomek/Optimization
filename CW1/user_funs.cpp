@@ -9,10 +9,10 @@ matrix ff1T(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
-matrix ff2T(matrix x1, matrix x2, matrix ud1)
+matrix ff2T(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
-	y = pow(x1(0), 2) + pow(x2(0), 2) - cos(2.5 * 3.14159265 * x1(0)) - cos(2.5 * 3.14159265 * x2(0)) + 2;
+	y = pow(x(0), 2) + pow(x(1), 2) - cos(2.5 * 3.14159265 * x(0)) - cos(2.5 * 3.14159265 * x(1)) + 2;
 
 	return y;
 }
@@ -30,6 +30,11 @@ matrix ff1R(matrix x, matrix ud1, matrix ud2)
 	return abs(max - 50);
 }
 
+matrix ff2R(matrix x, matrix ud1, matrix ud2)
+{
+
+}
+
 matrix df1(double t, matrix Y, matrix ud1, matrix ud2)
 {
 	double a = 0.98, b = 0.63, g = 9.81, PA = 0.5, TA = 90, PB = 1, DB = 0.00365665, Fin = 0.01, Tin = 20;
@@ -42,6 +47,26 @@ matrix df1(double t, matrix Y, matrix ud1, matrix ud2)
 	dY(1) = FAout + Fin - FBout;
 	dY(2) = Fin / Y(1) * (Tin - Y(2)) + FAout / Y(1) * (TA - Y(2));
 	// cout << Y(0) - dY(0) << " " << Y(1) - dY(1) << " " << Y(2) - dY(2) << endl;
+	return dY;
+}
+
+matrix df2(double t, matrix Y, matrix ud1, matrix ud2)
+{
+	//double mr = 1.0; //masa ramienia
+	//double mc = 10.0; //masa ciezarka
+	//double l = 0.5; //dl. ramienia
+	//double alfa_ref = 3.14159265358979323846; //pi rad
+	//double omega_ref = 0.0; //0 rad/s
+	//double b = 0.5; //wsp. tarcia
+	////moment bezwladnosci:
+	//double I = (mr * l * l) / 3 + mc * l * l;
+	//double k1 = P(0); //wsp. wzmocnienia
+	//double k2 = P(1); //przesylane w P
+
+	matrix dY(2, 1);
+	/*dY(0) = Y(1);
+	dY(1) = (k1 * (alfa_ref - Y(0)) + k2 * (omega_ref - Y(1)) - b * Y(1));*/
+
 	return dY;
 }
 
