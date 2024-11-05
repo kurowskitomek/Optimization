@@ -1,10 +1,18 @@
 #include"user_funs.h"
 #include <cmath>
 
-matrix lab1f(matrix x, matrix ud1, matrix ud2)
+matrix ff1T(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
 	y = -cos(0.1 * x(0)) * exp(-pow(0.1 * x(0) - 2 * 3.14159265, 2)) + 0.002 * pow((0.1 * x), 2);
+
+	return y;
+}
+
+matrix ff2T(matrix x1, matrix x2, matrix ud1)
+{
+	matrix y;
+	y = pow(x1(0), 2) + pow(x2(0), 2) - cos(2.5 * 3.14159265 * x1(0)) - cos(2.5 * 3.14159265 * x2(0)) + 2;
 
 	return y;
 }

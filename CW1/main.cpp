@@ -184,7 +184,7 @@ void test_problem_lab1()
 
         // Expansion phase
         double random = dist(gen);
-        double* y_ex = expansion(lab1f, random, 1.0, x0, 10000, NAN, NAN);
+        double* y_ex = expansion(ff1T, random, 1.0, x0, 10000, NAN, NAN);
         double expansion_start = y_ex[0];
         double expansion_end = y_ex[1];
         //std::cout << "EXP:\n" << expansion_start << ", " << expansion_end << "\n";
@@ -192,7 +192,7 @@ void test_problem_lab1()
         csv_file <<x0<<";"<<random<<";"<<expansion_start<<";"<<expansion_end<<";"<< solution::f_calls<<";";
         // Fibonacci phase
         solution::clear_calls();
-        x = fib(lab1f, expansion_start, expansion_end, 0.1, NAN, NAN);
+        x = fib(ff1T, expansion_start, expansion_end, 0.1, NAN, NAN);
         //std::cout << "FIB:\n" << x<< std::endl;
         std::cout << "-------------------------------------------" << std::endl;
         std::string loc_glb;
@@ -207,7 +207,7 @@ void test_problem_lab1()
 
         // Lagrange phase
         solution::clear_calls();
-        y = lag(lab1f, expansion_start, expansion_end, 0.1, 0.00001, 10000, NAN, NAN);
+        y = lag(ff1T, expansion_start, expansion_end, 0.1, 0.00001, 10000, NAN, NAN);
         //std::cout << "LAG:\n" << y<< std::endl << std::endl;
         std::cout << "-------------------------------------------next" << std::endl;
 
@@ -229,7 +229,32 @@ void lab1()
 
 void lab2()
 {
+	solution y;
+	solution::clear_calls();
 
+	cout << "HJ:\n";
+	double s = 0.001;
+	matrix s0(s);
+	matrix x0(0);
+	s0.add_row(s);
+	x0.add_row(0);
+
+	matrix s1(s);
+	matrix x1(0);
+	s1.add_row(s);
+	x1.add_row(0);
+	//s0.add_col(s);
+
+	solution y_ex = HJ(ff2T, x1, 0.001, 0.2, 0.001, 1000, NAN);
+	cout << y_ex.x << "\n";
+
+	cout << "\nRosen:\n";
+
+	solution::clear_calls();
+
+	y = Rosen(ff2T, x0, s0, 2, 0.0001, 0.001, 100000000);
+
+	cout << y.x << endl << endl;
 }
 
 void lab3()

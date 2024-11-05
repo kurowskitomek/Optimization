@@ -345,7 +345,41 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+
+		solution x = x0;
+		solution xb = x;
+		solution xb2 = x;
+		while (s > epsilon)
+		{
+			xb.fit_fun(ff, ud1, ud2);
+			x = HJ_trial(ff, xb, s, ud1, ud2);
+			x.fit_fun(ff, ud1, ud2);
+
+			if (x.y < xb.y)
+			{
+				while (x.y < xb.y)
+				{
+					xb2.x = xb.x;
+					xb.x = x.x;
+					x.x = 2.0 * xb.x - xb2.x;
+					x = HJ_trial(ff, x, s, ud1, ud2);
+					xb.fit_fun(ff, ud1, ud2);
+					x.fit_fun(ff, ud1, ud2);
+
+					if (solution::f_calls > Nmax)
+					{
+						Xopt.flag = 0;
+						return Xopt;
+					}
+				}
+			}
+			else
+			{
+				s = alpha * s;
+			}
+		}
+		Xopt = xb;
+
 
 		return Xopt;
 	}
@@ -359,7 +393,23 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 {
 	try
 	{
-		//Tu wpisz kod funkcji
+		solution xps;
+		solution xms;
+		for (int i = 0; i < get_len(XB.x); i++)
+		{
+			xps.x = XB.x + s * exp(i + 1);
+			xms.x = XB.x - s * exp(i + 1);
+			xps.fit_fun(ff, ud1, ud2);
+			xms.fit_fun(ff, ud1, ud2);
+			if (xps.y < XB.y)
+			{
+				XB = xps;
+			}
+			else if (xms.y < XB.y)
+			{
+				XB = xms;
+			}
+		}
 
 		return XB;
 	}
@@ -371,16 +421,75 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
+	const int n = 2; // Amount of dimensions
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+		matrix D(n, n), l(n, 1), p(n, 1), s(s0);
+		for (int i = 0; i < n; i++)
+			D(i, i) = 1;
 
-		return Xopt;
+		solution X, Xt;
+		X.x = x0;
+		X.fit_fun(ff);
+		while (true)
+		{
+			for (int j = 0; j < n; j++)
+			{
+				Xt.x = X.x + s(j) * D[j];
+				Xt.fit_fun(ff);
+				if (Xt.y < X.y)
+				{
+					X = Xt;
+					l(j) += s(j);
+					s(j) *= alpha;
+				}
+				else
+				{
+					p(j) = p(j) + 1;
+					s(j) *= -beta;
+				}
+			}
+
+			bool basisChange = true;
+			for (int j = 0; j < n; j++)
+				if (p(j) == 0 || l(j) == 0)
+				{
+					basisChange = false;
+					break;
+				}
+
+			if (basisChange)
+			{
+				matrix Q(n, n), v(n, 1);
+				for (int i = 0; i < n; i++)
+					for (int j = 0; j <= i; j++)
+						Q(i, j) = l(i);
+				Q = D * Q;
+				v = Q[0] / norm(Q[0]);
+				D.set_col(v, 0);
+				for (int i = 1; i < n; i++)
+				{
+					matrix temp(n, 1);
+					for (int j = 0; j < i; j++)
+						temp = temp + (trans(Q[i]) * D[j]) * D[j];
+					v = Q[i] - temp;
+					D.set_col(v, i);
+				}
+				s = s0;
+				l = matrix(n, 1);
+				p = matrix(n, 1);
+			}
+			double max = abs(s(0));
+			for (int i = 1; i < n; i++)
+				if (max < abs(s(i)))
+					max = abs(s(i));
+			if (max < epsilon || solution::f_calls > Nmax)
+				return X;
+		}
 	}
 	catch (string ex_info)
 	{
-		throw ("solution Rosen(...):\n" + ex_info);
+		throw("solution Rosen(...):\n" + ex_info);
 	}
 }
 
