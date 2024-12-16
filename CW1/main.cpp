@@ -24,7 +24,8 @@ int main()
 	try
 	{
 		//lab0();
-		lab1();
+		//lab1();
+		lab3();
 	}
 	catch (string EX_INFO)
 	{
@@ -257,14 +258,124 @@ void lab2()
 	cout << y.x << endl << endl;
 }
 
-void lab3()
+void lab4()
 {
+	solution y;
+	solution::clear_calls();
+
+	cout << "CG:\n";
+	double s = 0.001;
+	matrix s0(s);
+	matrix x0(0);
+	s0.add_row(s);
+	x0.add_row(0);
+
+	matrix s1(s);
+	matrix x1(0);
+	s1.add_row(s);
+	x1.add_row(0);
+	//s0.add_col(s);
+
+	solution y_ex = CG(ff4T, gradient_example, x1, 0.001, 0.2, 0.001, 1000, NAN);
+	cout << y_ex.x << "\n";
 
 }
 
-void lab4()
+void lab3()
 {
+	double epsilon = 1E-3;
+	int Nmax = 10000;
+	double c_inside = 100;
+	double dc_inside = 0.2;
+	double c_outside = 1.0;
+	double dc_outside = 1.5;
 
+	std::ofstream sout_test("test_lab3.csv");
+
+	sout_test << "x0_1;x0_2;x1_out;x2_out;norm_out;y_out;f_calls_out;x1_in;x2_in;norm_in;y_in;f_calls_in\n";
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> x0_dist(1.5, 5.5);
+	std::stringstream test_ss;
+	solution test_sol;
+	matrix a = matrix(4.0);
+	matrix test_x0{};
+
+	for (int i = 0; i < 3; ++i)
+	{
+		if (i == 0)
+			a = matrix(4.0);
+		else if (i == 1)
+			a = matrix(4.4934);
+		else
+			a = matrix(5.0);
+
+		for (int j = 0; j < 100; ++j)
+		{
+			test_x0 = matrix(2, new double[2] { x0_dist(gen), x0_dist(gen) });
+			test_ss << test_x0(0) << "; " << test_x0(1) << "; ";
+
+			// Zewnêtrzne rozwi¹zanie
+			test_sol = pen(ff3T_outside, test_x0, c_outside, dc_outside, epsilon, Nmax, a);
+			//cout << test_sol;
+			test_ss << test_sol.x(0) << "; " << test_sol.x(1) << "; "
+				<< sqrt(pow(test_sol.x(0), 2) + pow(test_sol.x(1), 2)) << "; "
+				<< test_sol.y << "; " << test_sol.f_calls << "; ";
+			solution::clear_calls();
+
+			// Wewnêtrzne rozwi¹zanie
+			test_sol = pen(ff3T_inside, test_x0, c_inside, dc_inside, epsilon, Nmax, a);
+			//cout << test_sol;
+			test_ss << test_sol.x(0) << "; " << test_sol.x(1) << "; "
+				<< sqrt(pow(test_sol.x(0), 2) + pow(test_sol.x(1), 2)) << "; "
+				<< test_sol.y << "; " << test_sol.f_calls << "\n";
+			solution::clear_calls();
+		}
+	}
+
+	sout_test << test_ss.str();
+	sout_test.close();
+
+	std::ofstream Sout("sym_lab3.csv");
+
+	Sout << "time;x_position;y_position\n";
+
+	matrix ud1 = matrix(5, new double[5]
+	{
+			0.47, //Wspó³czynnik oporu (C) [-]
+			1.2, //Gêstoœæ powietrza (rho) [kg/m^3]
+			0.12, //Promieñ pi³ki (r) [m]
+			0.6, //Masa pi³ki (m) [kg]
+			9.81 //Przyœpieszenie ziemskie (g) [m/s^2]
+	});
+
+	//Pocz¹tkowe wartoœci szukania minimum
+	matrix x0 = matrix(2, new double[2] { -4.0, 2.0 });
+
+	//Szukanie optymalnej prêdkoœci pocz¹tkowej po osi x i pocz¹tkowej prêdkoœci obrotowej
+	solution opt = pen(ff3R, x0, c_outside, dc_outside, epsilon, Nmax, ud1);
+	std::cout << opt << "\n";
+
+	std::cout << opt.x(0) << std::endl;
+	std::cout << opt.x(1) << std::endl;
+
+	//Symulacja lotu pi³ki dla wyznaczonych ograniczeñ
+	matrix Y0(4, new double[4] { 0.0, opt.x(0), 100, 0 });
+	matrix* Y = solve_ode(df3, 0.0, 0.01, 7.0, Y0, ud1, opt.x(1));
+
+	// Zapis wyników symulacji do pliku CSV
+	int num_rows = get_len(Y[0]);
+	for (int i = 0; i < num_rows; ++i)
+	{
+		Sout << Y[0](i) << "; "  // Czas
+			<< Y[1](i, 0) << "; "  // Pozycja w osi x
+			<< Y[1](i, 2) << "\n";  // Pozycja w osi y
+	}
+
+	// Zamkniêcie pliku i usuniêcie dynamicznie alokowanej pamiêci
+	Sout.close();
+	delete[] Y;
 }
 
 void lab5()
